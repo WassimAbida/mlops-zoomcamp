@@ -24,12 +24,13 @@ def run(data_path, num_trials):
     X_valid, y_valid = load_pickle(os.path.join(data_path, "valid.pkl"))
 
     def objective(params):
-
-        rf = RandomForestRegressor(**params)
-        rf.fit(X_train, y_train)
-        y_pred = rf.predict(X_valid)
-        rmse = mean_squared_error(y_valid, y_pred, squared=False)
-
+        with mlflow.start_run():
+            mlflow.log_params(params)
+            rf = RandomForestRegressor(**params)
+            rf.fit(X_train, y_train)
+            y_pred = rf.predict(X_valid)
+            rmse = mean_squared_error(y_valid, y_pred, squared=False)
+            mlflow.log_metric("rmse", rmse)
         return {'loss': rmse, 'status': STATUS_OK}
 
     search_space = {
@@ -65,5 +66,4 @@ if __name__ == '__main__':
         help="the number of parameter evaluations for the optimizer to explore."
     )
     args = parser.parse_args()
-
     run(args.data_path, args.max_evals)

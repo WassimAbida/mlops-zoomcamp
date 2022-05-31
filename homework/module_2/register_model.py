@@ -46,6 +46,7 @@ def train_and_log_model(data_path, params):
         mlflow.log_metric("valid_rmse", valid_rmse)
         test_rmse = mean_squared_error(y_test, rf.predict(X_test), squared=False)
         mlflow.log_metric("test_rmse", test_rmse)
+        print('logging test & valid rmse')
 
 
 def run(data_path, log_top):
@@ -65,10 +66,17 @@ def run(data_path, log_top):
 
     # select the model with the lowest test RMSE
     experiment = client.get_experiment_by_name(EXPERIMENT_NAME)
-    # best_run = client.search_runs( ...  )[0]
 
+    best_run = client.search_runs(experiment_ids=experiment.experiment_id,
+                              filter_string="",
+                              run_view_type=ViewType.ACTIVE_ONLY,
+                              max_results=5,
+                              order_by=["metrics.rsme ASC"])[0]
+    # print(best_run)
     # register the best model
-    # mlflow.register_model( ... )
+    run_id = best_run.info.run_uuid
+    model_uri = f"runs:/{run_id}/model"
+    mlflow.register_model(model_uri, name="Green-Taxi-RF-model")
 
 
 if __name__ == '__main__':
@@ -86,5 +94,4 @@ if __name__ == '__main__':
         help="the top 'top_n' models will be evaluated to decide which model to promote."
     )
     args = parser.parse_args()
-
     run(args.data_path, args.top_n)

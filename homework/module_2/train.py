@@ -4,6 +4,7 @@ import pickle
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
+import mlflow
 
 
 def load_pickle(filename: str):
@@ -33,4 +34,11 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
-    run(args.data_path)
+    mlflow.set_tracking_uri("sqlite:///mlflow.db")
+    mlflow.set_experiment("nyc-taxi-module_2")
+
+    mlflow.sklearn.autolog(disable=False)
+    with mlflow.start_run():
+        run(args.data_path)
+
+    mlflow.end_run()
