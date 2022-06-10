@@ -18,6 +18,8 @@ hyperopt = "^0.2.7"
 xgboost = "^1.6.1"
 fastparquet = "^0.8.1"
 boto3 = "^1.23.6"
+prefect = "2.0b5"
+pre-commit = "^2.19.0"
 
 [tool.poetry.dev-dependencies]
 
